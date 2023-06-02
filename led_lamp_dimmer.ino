@@ -24,8 +24,15 @@ int measure()
 
     int wemm = ndc;
     
-    Serial.println(wemm);  
 
+    if (wemm < 0)
+    {
+      wemm = 0;
+    }
+
+
+    Serial.println(wemm);  
+    
     return wemm;
 }
 
@@ -33,7 +40,12 @@ int measure()
 void doLights(int dtc)
 {
   digitalWrite(outPin, HIGH);
-  delayMicroseconds(freqUs - dtc);
+  int amt = freqUs - dtc;
+  if (amt < 0)
+  {
+    amt = 0;
+  }
+  delayMicroseconds(amt);
   digitalWrite(outPin, LOW);
   delayMicroseconds(dtc);
 }
@@ -41,16 +53,18 @@ void doLights(int dtc)
 
 void startup()
 {
-  delay(5000); // allow capacitors to charge up fully.
+  Serial.println("STARTING");
+  delay(2000); // allow capacitors to charge up fully.
 
   dutyOffUs = measure();
-  int tempDuty = 0;
   
-  while(tempDuty < dutyOffUs);
+  for(int tempDuty = freqUs; tempDuty > dutyOffUs; tempDuty-=5)
   {
     doLights(tempDuty);
-    tempDuty++;
+    tempDuty--;
+    Serial.println(tempDuty);
   }
+  
 }
 
 
